@@ -1,0 +1,45 @@
+body{
+    background-color: gray;
+}
+
+html, body {
+    overflow: hidden;
+    height: 100%;
+}
+
+.container {
+    width: 100vw; /* Tüm genişliği kaplasın */
+    height: 100vh; /* Tüm yüksekliği kaplasın */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.form {
+    border: 2px solid black;
+    border-radius: 5%;
+    background-color: lightgray;
+    width: 500px;
+    height: 600px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: 20px;
+    justify-content: space-around;
+}
+
+.input{
+    width: 300px;
+}
+.input-date{
+    width: 150px;
+    text-align: center;
+}
+
+.inputs, .buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Yatayda ortalama */
+    justify-content: center; /* Dikeyde ortalama */
+    width: 100%; /* Tam genişlik */
+}
