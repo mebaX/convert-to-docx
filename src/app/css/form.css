@@ -1,15 +1,18 @@
-body{
+body {
     background-color: gray;
 }
 
-html, body {
+html,
+body {
     overflow: hidden;
     height: 100%;
 }
 
 .container {
-    width: 100vw; /* Tüm genişliği kaplasın */
-    height: 100vh; /* Tüm yüksekliği kaplasın */
+    width: 100vw;
+    /* Tüm genişliği kaplasın */
+    height: 100vh;
+    /* Tüm yüksekliği kaplasın */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -28,18 +31,59 @@ html, body {
     justify-content: space-around;
 }
 
-.input{
+.input {
     width: 300px;
 }
-.input-date{
+
+.input-date {
     width: 150px;
     text-align: center;
 }
 
-.inputs, .buttons {
+.inputs,
+.buttons {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Yatayda ortalama */
-    justify-content: center; /* Dikeyde ortalama */
-    width: 100%; /* Tam genişlik */
+    align-items: center;
+    /* Yatayda ortalama */
+    justify-content: center;
+    /* Dikeyde ortalama */
+    width: 100%;
+    /* Tam genişlik */
+}
+
+.suppliers {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.supplier {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    margin-top: 10px;
+}
+
+
+.supplier-dates {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    margin-top: 10px;
+}
+
+.supplier-date {
+    width: 125px;
+    margin-left: 10px;
+    justify-content: space-around;
+    margin-top: 10px;
+}
+
+.supplier-buttons {
+    display: flex;
+    flex-direction: row;
+    margin-top: 10px;
+    justify-content: space-around;
+
 }
