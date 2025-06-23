@@ -1,70 +1,82 @@
+// Ortak fonksiyon ve importlar
 import { open } from 'sqlite';
 import sqlite3 from 'sqlite3';
 import path from 'path';
+import { NextResponse } from 'next/server';
 
-const dbPath = path.join(process.cwd(), 'data', 'docxcevirme.db');
+// DB bağlantısı fonksiyonu
+async function getDbConnection(filename) {
+  const safeFilename = filename && filename.endsWith('.db') ? filename : null;
+  const dbPath = safeFilename
+    ? path.join(process.cwd(), 'data', 'databases', safeFilename)
+    : path.join(process.cwd(), 'data', 'docxcevirme.db');
 
-async function getDbConnection() {
   return await open({
     filename: dbPath,
-    driver: sqlite3.Database
+    driver: sqlite3.Database,
   });
 }
 
-export async function GET() {
+
+export async function GET(req) {
   try {
-    const db = await getDbConnection();
-    const data = await db.all("SELECT * FROM 'tedarikci'");
-    return new Response(JSON.stringify(data), {
-      headers: { 'Content-Type': 'application/json' }
-    });
+    const filename = req.headers.get("x-db-file");
+    const db = await getDbConnection(filename);
+    const data = await db.all("SELECT * FROM tedarikci");
+    return NextResponse.json(data);
   } catch (error) {
-    console.error('Database error:', error);
-    return new Response(JSON.stringify([]), { // Boş array döndür
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    console.error(error);
+    return NextResponse.json([], { status: 500 });
   }
 }
 
-export async function POST(request) {
-  const db = await getDbConnection();
-  const { firma_adi, adres, adres2, vergiNo, vergiDairesi, ticariSicilNo, telefon, fax, eposta } = await request.json();
-  
+export async function POST(req) {
   try {
+    const filename = req.headers.get("x-db-file");
+    console.log('GET /suppliers çağrıldı, filename:', filename); // Debug için
+    const db = await getDbConnection(filename);
+    const body = await req.json();
+    const { firma_adi, adres, adres2, vergiNo, vergiDairesi, ticariSicilNo, telefon, fax, eposta } = body;
+
     const result = await db.run(
-      "INSERT INTO tedarikci (firma_adi, adres, adres2, vergiNo, vergiDairesi, ticariSicilNo, telefon, fax, eposta) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      `INSERT INTO tedarikci (firma_adi, adres, adres2, vergiNo, vergiDairesi, ticariSicilNo, telefon, fax, eposta)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [firma_adi, adres, adres2, vergiNo, vergiDairesi, ticariSicilNo, telefon, fax, eposta]
     );
-    return Response.json({ id: result.lastID, message: 'Tedarikçi başarıyla eklendi' });
+
+    return NextResponse.json({ id: result.lastID, message: 'Tedarikçi eklendi' });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
-export async function PUT(request) {
-  const db = await getDbConnection();
-  const { id, firma_adi, adres, adres2, vergiNo, vergiDairesi, ticariSicilNo, telefon, fax, eposta } = await request.json();
-  
+export async function PUT_suppliers(req) {
   try {
+    const filename = req.headers.get("x-db-file");
+    const db = await getDbConnection(filename);
+    const body = await req.json();
+    const { id, firma_adi, adres, adres2, vergiNo, vergiDairesi, ticariSicilNo, telefon, fax, eposta } = body;
+
     await db.run(
-      "UPDATE tedarikci SET firma_adi = ?, adres = ?, adres2 = ?, vergiNo = ?, vergiDairesi = ?, ticariSicilNo = ?, telefon = ?, fax = ?, eposta = ? WHERE id = ?",
+      `UPDATE tedarikci SET firma_adi=?, adres=?, adres2=?, vergiNo=?, vergiDairesi=?, ticariSicilNo=?, telefon=?, fax=?, eposta=? WHERE id=?`,
       [firma_adi, adres, adres2, vergiNo, vergiDairesi, ticariSicilNo, telefon, fax, eposta, id]
     );
-    return Response.json({ message: 'Tedarikçi başarıyla güncellendi' });
+
+    return NextResponse.json({ message: 'Tedarikçi güncellendi' });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
-export async function DELETE(request) {
-  const db = await getDbConnection();
-  const { id } = await request.json();
-  
+export async function DELETE_suppliers(req) {
   try {
-    await db.run("DELETE FROM tedarikci WHERE id = ?", [id]);
-    return Response.json({ message: 'Tedarikçi başarıyla silindi' });
+    const filename = req.headers.get("x-db-file");
+    const db = await getDbConnection(filename);
+    const { id } = await req.json();
+
+    await db.run("DELETE FROM tedarikci WHERE id=?", [id]);
+    return NextResponse.json({ message: 'Silindi' });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

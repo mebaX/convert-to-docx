@@ -1,89 +1,93 @@
-body {
-    background-color: gray;
-}
-
-html,
-body {
-    overflow: hidden;
-    height: 100%;
-}
-
 .container {
-    width: 100vw;
-    /* Tüm genişliği kaplasın */
-    height: 100vh;
-    /* Tüm yüksekliği kaplasın */
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.form {
-    border: 2px solid black;
-    border-radius: 5%;
-    background-color: lightgray;
-    width: 500px;
-    height: 600px;
-    display: flex;
-    align-items: center;
-    flex-direction: column;
+    background-color: #f5f7fa;
     padding: 20px;
-    justify-content: space-around;
+    overflow: hidden; /* Ekran taşmasını engeller */
 }
 
-.input {
-    width: 300px;
+.form-paper {
+    border-radius: 12px;
+    background-color: white;
+    width: 100%;
+    max-width: 900px;
+    max-height: 95vh;
+    padding: 30px;
+    overflow-y: auto; /* içerik fazla olursa sadece içeriğin içinde kayar */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
-.input-date {
-    width: 150px;
-    text-align: center;
-}
 
-.inputs,
-.buttons {
+.form-content {
     display: flex;
     flex-direction: column;
+}
+
+.section {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.input-group {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.date-group {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.suppliers-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.supplier-card {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border-left: 4px solid #3498db;
+}
+
+.supplier-content {
+    display: flex;
     align-items: center;
-    /* Yatayda ortalama */
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.document-buttons {
+    display: flex;
     justify-content: center;
-    /* Dikeyde ortalama */
-    width: 100%;
-    /* Tam genişlik */
+    gap: 15px;
+    flex-wrap: wrap;
 }
 
-.suppliers {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
+@media (max-width: 768px) {
+    .supplier-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .form-paper {
+        width: 100%;
+        padding: 15px;
+    }
+    
+    .input-group, .date-group {
+        flex-direction: column;
+    }
 }
 
-.supplier {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    margin-top: 10px;
-}
-
-
-.supplier-dates {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    margin-top: 10px;
-}
-
-.supplier-date {
-    width: 125px;
-    margin-left: 10px;
-    justify-content: space-around;
-    margin-top: 10px;
-}
-
-.supplier-buttons {
-    display: flex;
-    flex-direction: row;
-    margin-top: 10px;
-    justify-content: space-around;
-
+html, body {
+    overflow: hidden;
 }
