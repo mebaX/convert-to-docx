@@ -68,7 +68,7 @@ export async function PUT(req) {
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-}
+} 
 
 // Siler
 export async function DELETE(req) {

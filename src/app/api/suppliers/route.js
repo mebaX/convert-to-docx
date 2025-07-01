@@ -50,7 +50,7 @@ export async function POST(req) {
   }
 }
 
-export async function PUT_suppliers(req) {
+export async function PUT(req) {
   try {
     const filename = req.headers.get("x-db-file");
     const db = await getDbConnection(filename);
@@ -66,9 +66,9 @@ export async function PUT_suppliers(req) {
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-}
+} 
 
-export async function DELETE_suppliers(req) {
+export async function DELETE(req) {
   try {
     const filename = req.headers.get("x-db-file");
     const db = await getDbConnection(filename);

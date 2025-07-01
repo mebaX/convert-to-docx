@@ -3,17 +3,19 @@
 import { useState, useEffect } from 'react';
 import { Tabs, Tab, InputLabel, MenuItem, FormControl, Select, Button, TextField, Box, Typography, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import { Delete, Edit, Add, Home } from '@mui/icons-material';
-import "../css/datas.css";
 
 export default function EntegreYonetim() {
   const [aktifTab, setAktifTab] = useState(0);
   const [seciliId, setSeciliId] = useState(null);
   const [projectOwners, setProjectOwners] = useState([]);
-  const [suppliers, setSuppliers] = useState([]);  // Bunu da ekledik!
+  const [suppliers, setSuppliers] = useState([]); 
   const [dialogAcik, setDialogAcik] = useState(false);
   const [duzenlemeModu, setDuzenlemeModu] = useState(false);
   const [dbFile, setDbFile] = useState(null);
   const [licensed, setLicensed] = useState(false);
+
+  const [formErrors, setFormErrors] = useState({});
+
 
   const [projeSahibiForm, setProjeSahibiForm] = useState({
     firma_adi: '',
@@ -37,8 +39,6 @@ export default function EntegreYonetim() {
     fax: '',
     eposta: ''
   });
-
-  // datas/page.jsx'in başındaki importlardan sonra
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -103,9 +103,6 @@ export default function EntegreYonetim() {
       const projectOwnersData = await projectOwnersResponse.json();
       const suppliersData = await suppliersResponse.json();
 
-      console.log('API projectOwnersData:', projectOwnersData); // 🔍
-      console.log('API suppliersData:', suppliersData);         // 🔍
-
       setProjectOwners(
         Array.isArray(projectOwnersData) ? projectOwnersData : projectOwnersData.data || []
       );
@@ -115,7 +112,6 @@ export default function EntegreYonetim() {
       );
 
     } catch (error) {
-      console.error('Veri yükleme hatası:', error);
       setProjectOwners([]);
       setSuppliers([]);
     }
@@ -151,7 +147,7 @@ export default function EntegreYonetim() {
     setDuzenlemeModu(true);
 
     if (aktifTab === 0) {
-      const seciliProjeSahibi = projeSahipleri.find(sahip => sahip.id === seciliId);
+      const seciliProjeSahibi = projectOwners.find(sahip => sahip.id === seciliId);
       if (seciliProjeSahibi) {
         setProjeSahibiForm({
           firma_adi: seciliProjeSahibi.firma_adi,
@@ -165,7 +161,7 @@ export default function EntegreYonetim() {
         });
       }
     } else {
-      const seciliTedarikci = tedarikciler.find(tedarikci => tedarikci.id === seciliId);
+      const seciliTedarikci = suppliers.find(tedarikci => tedarikci.id === seciliId);
       if (seciliTedarikci) {
         setTedarikciForm({
           firma_adi: seciliTedarikci.firma_adi,
@@ -202,12 +198,56 @@ export default function EntegreYonetim() {
       verileriYukle();
       setSeciliId(null);
     } catch (error) {
-      console.error('Silme hatası:', error);
       alert('Silme işlemi başarısız oldu');
     }
   };
 
+  const validateFields = (isSupplier = false) => {
+    const errors = {};
+
+    if (isSupplier) {
+      // Firma adı zorunlu
+      if (!tedarikciForm.firma_adi || tedarikciForm.firma_adi.trim() === "") {
+        errors.firma_adi = "Firma adı zorunludur.";
+      }
+
+      // E-posta girildiyse formatı kontrol et
+      if (tedarikciForm.eposta && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(tedarikciForm.eposta)) {
+        errors.eposta = "Geçerli bir e-posta girin.";
+      }
+
+      // Telefon girildiyse 10 hane mi kontrol et
+      if (tedarikciForm.telefon && !/^\d{10}$/.test(tedarikciForm.telefon)) {
+        errors.telefon = "Telefon 10 haneli olmalıdır.";
+      }
+    } else {
+      // Firma adı zorunlu
+      if (!projeSahibiForm.firma_adi || projeSahibiForm.firma_adi.trim() === "") {
+        errors.firma_adi = "Firma adı zorunludur.";
+      }
+
+      // E-posta girildiyse formatı kontrol et
+      if (projeSahibiForm.eposta && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(projeSahibiForm.eposta)) {
+        errors.eposta = "Geçerli bir e-posta girin.";
+      }
+
+      // Telefon girildiyse 10 hane mi kontrol et
+      if (projeSahibiForm.telefon && !/^\d{10}$/.test(projeSahibiForm.telefon)) {
+        errors.telefon = "Telefon 10 haneli olmalıdır.";
+      }
+    }
+
+    return errors;
+  };
+
+
   const kaydet = async () => {
+    const errors = validateFields(aktifTab === 1); // 1 tedarikçi
+    setFormErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      return; // hata varsa çık
+    }
     try {
       const url = aktifTab === 0 ? '/api/projectOwners' : '/api/suppliers';
       const method = duzenlemeModu ? 'PUT' : 'POST';
@@ -227,7 +267,6 @@ export default function EntegreYonetim() {
       setDialogAcik(false);
       if (!duzenlemeModu) setSeciliId(null);
     } catch (error) {
-      console.error('Kaydetme hatası:', error);
       alert('Kayıt işlemi başarısız oldu');
     }
   };
@@ -300,8 +339,8 @@ export default function EntegreYonetim() {
           {aktifTab === 0 ? (
             <>
               <Typography><strong>Firma Adı:</strong> {seciliKayit.firma_adi}</Typography>
-              <Typography><strong>Adres (İl/İlçe):</strong> {seciliKayit.adres}</Typography>
-              <Typography><strong>Adres 2 (Tam Adres):</strong> {seciliKayit.adres2 || '-'}</Typography>
+              <Typography><strong>İlçe / İl:</strong> {seciliKayit.adres}</Typography>
+              <Typography><strong>Tam Adres:</strong> {seciliKayit.adres2 || '-'}</Typography>
               <Typography><strong>E posta:</strong> {seciliKayit.eposta}</Typography>
               <Typography><strong>Telefon:</strong> {seciliKayit.telefon}</Typography>
               <Typography><strong>Fax:</strong> {seciliKayit.fax}</Typography>
@@ -311,8 +350,8 @@ export default function EntegreYonetim() {
           ) : (
             <>
               <Typography><strong>Firma Adı:</strong> {seciliKayit.firma_adi}</Typography>
-              <Typography><strong>Adres (İl/İlçe):</strong> {seciliKayit.adres}</Typography>
-              <Typography><strong>Adres 2 (Tam Adres):</strong> {seciliKayit.adres2 || '-'}</Typography>
+              <Typography><strong>İlçe / İl:</strong> {seciliKayit.adres}</Typography>
+              <Typography><strong>Tam Adres:</strong> {seciliKayit.adres2 || '-'}</Typography>
               <Typography><strong>Vergi No:</strong> {seciliKayit.vergiNo}</Typography>
               <Typography><strong>Vergi Dairesi:</strong> {seciliKayit.vergiDairesi}</Typography>
               <Typography><strong>Ticari Sicil No:</strong> {seciliKayit.ticariSicilNo}</Typography>
@@ -333,28 +372,28 @@ export default function EntegreYonetim() {
         <DialogContent>
           {aktifTab === 0 ? (
             <Box sx={{ mt: 2, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-              <TextField name="firma_adi" label="Firma Adı" value={projeSahibiForm.firma_adi} onChange={projeSahibiInputDegisti} fullWidth />
-              <TextField name="adres" label="Adres" value={projeSahibiForm.adres} onChange={projeSahibiInputDegisti} fullWidth multiline rows={2} />
-              <TextField name="adres2" label="Adres 2" value={projeSahibiForm.adres2} onChange={projeSahibiInputDegisti} fullWidth multiline rows={2} />
-              <TextField name="eposta" label="E posta" value={projeSahibiForm.eposta} onChange={projeSahibiInputDegisti} fullWidth multiline />
-              <TextField name="telefon" label="Telefon" placeholder='Örn: 5123456789' value={projeSahibiForm.telefon} onChange={projeSahibiInputDegisti} fullWidth />
+              <TextField name="firma_adi" label="Firma Adı" error={!!formErrors.firma_adi} value={projeSahibiForm.firma_adi} onChange={projeSahibiInputDegisti} fullWidth />
+              <TextField name="adres" label="İlçe / İl" value={projeSahibiForm.adres} onChange={projeSahibiInputDegisti} fullWidth multiline rows={2} />
+              <TextField name="adres2" label="Tam Adres" value={projeSahibiForm.adres2} onChange={projeSahibiInputDegisti} fullWidth multiline rows={2} />
+              <TextField name="eposta" label="E posta" error={!!formErrors.eposta} value={projeSahibiForm.eposta} onChange={projeSahibiInputDegisti} fullWidth multiline />
+              <TextField name="telefon" label="Telefon" error={!!formErrors.telefon} placeholder='Örn: 5123456789' value={projeSahibiForm.telefon} onChange={projeSahibiInputDegisti} fullWidth />
               <TextField name="fax" label="Fax" placeholder='Örn: 5123456789' value={projeSahibiForm.fax} onChange={projeSahibiInputDegisti} fullWidth />
               <TextField name="yatirim_adi" label="Yatırım Adı" value={projeSahibiForm.yatirim_adi} onChange={projeSahibiInputDegisti} fullWidth />
-              <TextField name="yatirim_adresi" label="Yatırım Adresi" value={projeSahibiForm.yatirim_adresi} onChange={projeSahibiInputDegisti} fullWidth multiline rows={2} />
+              <TextField name="yatirim_adresi" label="Yatırım Adresi (Ada / Parsel)" value={projeSahibiForm.yatirim_adresi} onChange={projeSahibiInputDegisti} fullWidth multiline rows={2} />
             </Box>
           ) : (
             <Box sx={{ mt: 2, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-              <TextField name="firma_adi" label="Firma Adı" value={tedarikciForm.firma_adi} onChange={tedarikciInputDegisti} fullWidth />
+              <TextField name="firma_adi" label="Firma Adı" error={!!formErrors.firma_adi} value={tedarikciForm.firma_adi} onChange={tedarikciInputDegisti} fullWidth />
               <TextField name="vergiNo" label="Vergi No" value={tedarikciForm.vergiNo} onChange={tedarikciInputDegisti} fullWidth />
               <TextField name="vergiDairesi" label="Vergi Dairesi" value={tedarikciForm.vergiDairesi} onChange={tedarikciInputDegisti} fullWidth />
               <TextField name="ticariSicilNo" label="Ticari Sicil No" value={tedarikciForm.ticariSicilNo} onChange={tedarikciInputDegisti} fullWidth />
-              <TextField name="telefon" label="Telefon" placeholder='Örn: 5123456789' value={tedarikciForm.telefon} onChange={tedarikciInputDegisti} fullWidth />
+              <TextField name="telefon" label="Telefon" error={!!formErrors.telefon} placeholder='Örn: 5123456789' value={tedarikciForm.telefon} onChange={tedarikciInputDegisti} fullWidth />
               <TextField name="fax" label="Fax" placeholder='Örn: 5123456789' value={tedarikciForm.fax} onChange={tedarikciInputDegisti} fullWidth />
-              <TextField name="eposta" label="E-posta" value={tedarikciForm.eposta} onChange={tedarikciInputDegisti} fullWidth />
+              <TextField name="eposta" label="E-posta" error={!!formErrors.eposta} value={tedarikciForm.eposta} onChange={tedarikciInputDegisti} fullWidth />
               <br />
               <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-                <TextField name="adres" label="Adres" value={tedarikciForm.adres} onChange={tedarikciInputDegisti} fullWidth multiline rows={2} />
-                <TextField name="adres2" label="Adres 2" value={tedarikciForm.adres2} onChange={tedarikciInputDegisti} fullWidth multiline rows={2} />
+                <TextField name="adres" label="İlçe / İl" value={tedarikciForm.adres} onChange={tedarikciInputDegisti} fullWidth multiline rows={2} />
+                <TextField name="adres2" label="Tam Adres" value={tedarikciForm.adres2} onChange={tedarikciInputDegisti} fullWidth multiline rows={2} />
               </Box>
             </Box>
           )}

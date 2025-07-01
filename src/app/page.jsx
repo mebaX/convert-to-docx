@@ -308,15 +308,15 @@ export default function Home() {
     <ThemeProvider theme={theme}>
       <Box className="container">
         <Paper elevation={8} className="form-paper">
-          <Typography variant="h5" component="h1" gutterBottom align="center" color="primary" sx={{ fontWeight: 'bold', mb: 3 }}>
-            Teklif ve Şartname Oluşturucu
+          <Typography variant="h5" component="h1" gutterBottom align="center" color="secondary"  sx={{ fontWeight: 'bold', mb: 3 }}>
+            TKDK 3 Teklif Hazırlama Programı
           </Typography>
 
           <Box className="form-content">
             {/* Proje Sahibi Bölümü */}
             <Box className="section" sx={{ mb: 3 }}>
               <Typography variant="subtitle1" gutterBottom sx={{ display: 'flex', alignItems: 'center', fontWeight: 'bold' }}>
-                <Business color="primary" sx={{ mr: 1 }} /> Proje Bilgileri
+                <Business color="primary" sx={{ mr: 1 }} /> Proje Sahibi Bilgileri
               </Typography>
 
               <Box className="input-group">
@@ -378,6 +378,29 @@ export default function Home() {
                     }}
                   />
                 </LocalizationProvider>
+
+                {/* Belge Oluşturma Butonları */}
+                <Box className="document-buttons" sx={{ mt: 3 }}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => generateDocument("TeknikSartname")}
+                    startIcon={<Description />}
+                    sx={{ mr: 2 }}
+                    size="large"
+                  >
+                    Teknik Şartname Oluştur
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => generateDocument("TeklifDavetMektubu")}
+                    startIcon={<Description />}
+                    size="large"
+                  >
+                    Teklif Davet Mektubu Oluştur
+                  </Button>
+                </Box>
               </Box>
             </Box>
 
@@ -434,35 +457,12 @@ export default function Home() {
                         sx={{ ml: 2, height: 56 }}
                         startIcon={<Description />}
                       >
-                        Form Oluştur
+                        Teklif Sunum Formu Oluştur
                       </Button>
                     </Box>
                   </Box>
                 ))}
               </Box>
-            </Box>
-
-            {/* Belge Oluşturma Butonları */}
-            <Box className="document-buttons" sx={{ mt: 3 }}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => generateDocument("TeknikSartname")}
-                startIcon={<Description />}
-                sx={{ mr: 2 }}
-                size="large"
-              >
-                Teknik Şartname
-              </Button>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => generateDocument("TeklifDavetMektubu")}
-                startIcon={<Description />}
-                size="large"
-              >
-                Teklif Davet Mektubu
-              </Button>
             </Box>
           </Box>
         </Paper>
